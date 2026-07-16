@@ -33,10 +33,10 @@ jobs:
             cp -r files/* source/
           fi
 
-      - name: Add Passwall2 feed
+           - name: Add Passwall2
         run: |
           cd source
-          echo "src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2.git" >> feeds.conf.default
+          git clone https://github.com/xiaorouji/openwrt-passwall2.git package/passwall2
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 

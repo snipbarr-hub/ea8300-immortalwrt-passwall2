@@ -25,7 +25,6 @@ jobs:
       - name: Clone ImmortalWrt
         run: |
           git clone --depth=1 https://github.com/immortalwrt/immortalwrt.git source
-
       - name: Copy files
         run: |
           cp config.seed source/.config
@@ -33,7 +32,7 @@ jobs:
             cp -r files/* source/
           fi
 
-           - name: Add Passwall2
+      - name: Add Passwall2
         run: |
           cd source
           git clone https://github.com/xiaorouji/openwrt-passwall2.git package/passwall2

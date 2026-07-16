@@ -2,42 +2,50 @@ name: Build EA8300 ImmortalWrt Passwall2
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare build environment
+      - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential clang flex bison g++ gawk \
           gcc-multilib g++-multilib gettext git libncurses5-dev \
-          libssl-dev python3-distutils rsync unzip zlib1g-dev file wget
+          libssl-dev python3 python3-distutils rsync unzip zlib1g-dev file wget
 
       - name: Clone ImmortalWrt
         run: |
-          git clone --depth=1 --branch openwrt-25.12 https://github.com/immortalwrt/immortalwrt.git source
+          git clone --depth=1 https://github.com/immortalwrt/immortalwrt.git source
+          cd source
+          git checkout openwrt-25.12
 
-      - name: Add Passwall2 feeds
+      - name: Copy files
+        run: |
+          cp config.seed source/.config
+
+          if [ -d files ]; then
+            cp -r files/* source/
+          fi
+
+      - name: Add Passwall2 feed
         run: |
           cd source
           echo "src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2.git" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-            - name: Configure EA8300
+      - name: Configure
         run: |
           cd source
-          cp ../config.seed .config
-
-          if [ -d ../files ]; then
-            cp -r ../files/* .
-          fi
-
           make defconfig
 
       - name: Build firmware
@@ -49,4 +57,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: EA8300-ImmortalWrt-Passwall2
-          path: source/bin/targets/ipq40xx/generic/
+          path: source/bin/targets/ipq40xx/generic/*

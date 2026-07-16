@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Enable services
+/etc/init.d/passwall2 enable 2>/dev/null
+/etc/init.d/sing-box enable 2>/dev/null
+/etc/init.d/irqbalance enable 2>/dev/null
+
+# Enable firewall forwarding
+uci set firewall.@defaults[0].flow_offloading='1'
+uci set firewall.@defaults[0].flow_offloading_hw='1'
+uci commit firewall
+
+# Enable sing-box service
+uci set sing-box.main.enabled='1'
+uci set sing-box.main.user='root'
+uci commit sing-box
+
+# Make sure dnsmasq uses router DNS
+uci set dhcp.@dnsmasq[0].domainneeded='1'
+uci set dhcp.@dnsmasq[0].boguspriv='1'
+uci commit dhcp
+
+# Apply
+/etc/init.d/firewall restart
+/etc/init.d/dnsmasq restart
+
+exit 0

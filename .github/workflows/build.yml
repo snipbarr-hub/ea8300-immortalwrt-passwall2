@@ -29,10 +29,15 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Configure EA8300
+            - name: Configure EA8300
         run: |
           cd source
           cp ../config.seed .config
+
+          if [ -d ../files ]; then
+            cp -r ../files/* .
+          fi
+
           make defconfig
 
       - name: Build firmware
